@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-brand: #0ea5e9;
+  --color-brand-fg: #ffffff;
+  --color-accent: #f59e0b;
+  --color-accent-fg: #000000;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  text-rendering: optimizeLegibility;
+}
