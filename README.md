@@ -1,43 +1,38 @@
-# Astro Starter Kit: Minimal
+# sitegen-template
 
-```sh
-pnpm create astro@latest -- --template minimal
+Astro 5 + Tailwind 4 boilerplate consumed by `optidigi/sitegen-orchestrator`.
+Per-engagement, the orchestrator copies this template into `sandbox/site-<slug>/`,
+integrates a theme from `sitegen-themes/`, fills content via subagents, and pushes.
+
+## What's in the box
+
+- **Astro 5.x**, `output: static`, with `@astrojs/sitemap` + `astro-seo`
+- **Tailwind 4** via `@tailwindcss/vite` + `@tailwindcss/typography`
+- **SEO baseline**: per-page `<title>`/meta/OG/Twitter, sitemap, dynamic `robots.txt`,
+  `llms.txt`, `humans.txt`, `/.well-known/security.txt`, JSON-LD `Organization`
+  (always) + `LocalBusiness` (if NAP supplied), favicon set, manifest
+- **ContactForm** component: mailto fallback by default; renders Web3Forms
+  POST form when `PUBLIC_WEB3FORMS_KEY` is set
+- **Dockerfile**: multi-stage `node:lts-alpine` → `nginx:alpine`, ~30MB final image
+- **nginx.conf**: gzip, asset/HTML cache strategy, security headers (CSP, X-Frame-Options, etc.)
+- **GHA `publish.yml`**: push to `main` → `ghcr.io/<owner>/<repo>:latest` + `:sha-<short>`
+
+## Local development
+
+```bash
+pnpm install
+pnpm dev          # http://localhost:4321
+pnpm build        # static output to dist/
+pnpm astro check  # type / schema check
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Environment variables
 
-## 🚀 Project Structure
+See `.env.example`. `SITE_URL` is the only one the build needs;
+`PUBLIC_WEB3FORMS_KEY` and `PUBLIC_CONTACT_EMAIL` are optional.
 
-Inside of your Astro project, you'll see the following folders and files:
+## Don't edit this template directly during a site engagement
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The orchestrator copies the template into `sandbox/site-<slug>/` and works there.
+Edits to this template apply to *all future* sites. Land them in a PR and pull
+into `sitegen-template/` on disk before starting the next engagement.
