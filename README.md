@@ -1,8 +1,8 @@
-# sitegen-template
+# siab-site-template
 
-Astro 5 + Tailwind 4 boilerplate consumed by `optidigi/sitegen-orchestrator`.
+Astro 5 + Tailwind 4 boilerplate consumed by `optidigi/siab-site-orchestrator`.
 Per-engagement, the orchestrator copies this template into `sandbox/site-<slug>/`,
-integrates a theme from `sitegen-themes/`, fills content via subagents, and pushes.
+integrates a theme from `siab-site-themes/`, fills content via subagents, and pushes.
 
 ## What's in the box
 
@@ -35,4 +35,4 @@ See `.env.example`. `SITE_URL` is the only one the build needs;
 
 The orchestrator copies the template into `sandbox/site-<slug>/` and works there.
 Edits to this template apply to *all future* sites. Land them in a PR and pull
-into `sitegen-template/` on disk before starting the next engagement.
+into `siab-site-template/` on disk before starting the next engagement.
