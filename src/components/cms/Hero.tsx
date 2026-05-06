@@ -1,3 +1,5 @@
+import SmoothImage from "./SmoothImage"
+
 /**
  * Hero block renderer (Preact).
  *
@@ -61,11 +63,10 @@ export default function Hero({
         </div>
         {imageUrl && (
           <div class="md:order-last">
-            <img
+            <SmoothImage
               src={imageUrl}
               alt={imageAlt ?? ""}
               class="w-full h-auto rounded-lg shadow-lg"
-              loading="lazy"
             />
           </div>
         )}

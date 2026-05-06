@@ -1,3 +1,5 @@
+import SmoothImage from "./SmoothImage"
+
 export type TestimonialsProps = {
   title?: string | null
   items: Array<{
@@ -29,11 +31,10 @@ export default function Testimonials({ title, items }: TestimonialsProps) {
               </blockquote>
               <figcaption class="mt-4 flex items-center gap-3">
                 {item.avatarUrl && (
-                  <img
+                  <SmoothImage
                     src={item.avatarUrl}
                     alt=""
                     class="h-10 w-10 rounded-full object-cover"
-                    loading="lazy"
                   />
                 )}
                 <div>
