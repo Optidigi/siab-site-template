@@ -7,6 +7,7 @@ import FeatureList from "../cms/FeatureList"
 import Testimonials from "../cms/Testimonials"
 import FAQ from "../cms/FAQ"
 import ContactSection from "../cms/ContactSection"
+import { BlockErrorBoundary } from "../cms/BlockErrorBoundary"
 
 type DraftMessage = {
   type: "preview:draft"
@@ -93,7 +94,9 @@ function PreactBlocks({ blocks, cmsOrigin }: { blocks: Block[]; cmsOrigin: strin
   return (
     <>
       {blocks.map((block, i) => (
-        <PreactBlock key={i} block={block} resolveMedia={resolveMedia} />
+        <BlockErrorBoundary key={i} blockType={block.blockType}>
+          <PreactBlock block={block} resolveMedia={resolveMedia} />
+        </BlockErrorBoundary>
       ))}
     </>
   )
