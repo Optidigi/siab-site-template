@@ -8,12 +8,13 @@ export type TestimonialsProps = {
     role?: string | null
     avatarUrl?: string | null  // resolved by Blocks.astro
   }>
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
-export default function Testimonials({ title, items }: TestimonialsProps) {
+export default function Testimonials({ title, items, dataBlockIndex }: TestimonialsProps) {
   if (!items || items.length === 0) return null
   return (
-    <section class="cms-block cms-block--testimonials py-16 md:py-20 bg-muted/30">
+    <section class="cms-block cms-block--testimonials py-16 md:py-20 bg-muted/30" data-block-index={dataBlockIndex}>
       <div class="container mx-auto px-4">
         {title && (
           <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">

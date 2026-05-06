@@ -18,6 +18,7 @@ export type CTAProps = {
     label?: string | null
     href?: string | null
   } | null
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
 export default function CTA({
@@ -25,6 +26,7 @@ export default function CTA({
   description,
   primary,
   secondary,
+  dataBlockIndex,
 }: CTAProps) {
   const primaryLabel = primary?.label?.trim()
   const primaryHref = primary?.href?.trim()
@@ -35,7 +37,7 @@ export default function CTA({
   const showSecondary = secondaryLabel && secondaryHref
 
   return (
-    <section class="cms-block cms-block--cta py-16 md:py-20">
+    <section class="cms-block cms-block--cta py-16 md:py-20" data-block-index={dataBlockIndex}>
       <div class="container mx-auto px-4 text-center max-w-3xl">
         <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
           {headline}

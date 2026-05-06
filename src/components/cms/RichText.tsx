@@ -15,12 +15,13 @@
  */
 export type RichTextProps = {
   body: string  // required by CMS Block
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
-export default function RichText({ body }: RichTextProps) {
+export default function RichText({ body, dataBlockIndex }: RichTextProps) {
   if (!body) return null
   return (
-    <section class="cms-block cms-block--richtext py-12 md:py-16">
+    <section class="cms-block cms-block--richtext py-12 md:py-16" data-block-index={dataBlockIndex}>
       <div
         class="container mx-auto px-4 prose prose-lg max-w-3xl"
         dangerouslySetInnerHTML={{ __html: body }}

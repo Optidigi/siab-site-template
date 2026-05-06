@@ -8,6 +8,7 @@ export type ContactSectionProps = {
     type: "text" | "email" | "tel" | "textarea"
     required?: boolean
   }>
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
 export default function ContactSection({
@@ -15,10 +16,11 @@ export default function ContactSection({
   description,
   formName,
   fields,
+  dataBlockIndex,
 }: ContactSectionProps) {
   if (!fields || fields.length === 0) return null
   return (
-    <section class="cms-block cms-block--contact py-16 md:py-20">
+    <section class="cms-block cms-block--contact py-16 md:py-20" data-block-index={dataBlockIndex}>
       <div class="container mx-auto px-4 max-w-2xl">
         {title && (
           <h2 class="text-3xl md:text-4xl font-bold tracking-tight">{title}</h2>
