@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { Block, MediaRef } from "../../lib/types"
 import Hero from "../cms/Hero"
 import RichText from "../cms/RichText"
@@ -32,6 +32,7 @@ type Props = {
  */
 export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
   const [draft, setDraft] = useState<{ blocks: Block[] } | null>(null)
+  const savedScrollRef = useRef<number | null>(null)
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
@@ -41,6 +42,8 @@ export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
       if (data.type === "preview:draft" && data.version === 1) {
         const page = data.payload?.page
         if (page && Array.isArray(page.blocks)) {
+          // Capture scroll BEFORE setDraft so React's commit can restore it.
+          savedScrollRef.current = window.scrollY
           setDraft({ blocks: page.blocks })
         }
       }
@@ -68,6 +71,16 @@ export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
       clearInterval(heartbeat)
     }
   }, [allowedOrigin])
+
+  // Restore scroll position after each draft commit. useLayoutEffect runs
+  // synchronously after DOM updates, so the user doesn't see a flash of
+  // top-scrolled content before the restore.
+  useLayoutEffect(() => {
+    if (savedScrollRef.current != null) {
+      window.scrollTo(0, savedScrollRef.current)
+      savedScrollRef.current = null
+    }
+  }, [draft])
 
   if (!draft) return null
 
