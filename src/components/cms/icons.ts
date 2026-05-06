@@ -21,9 +21,9 @@ import {
   Target, Terminal, ThumbsUp, Trash, TrendingUp, Truck, Tv, Type, Umbrella,
   Unlock, Upload, User, Users, Video, Volume, Wifi, X, Zap, ZoomIn,
 } from "lucide-preact"
-import type { ComponentType } from "preact"
+import type { LucideIcon } from "lucide-preact"
 
-export const ICON_MAP: Record<string, ComponentType<{ size?: number; class?: string }>> = {
+export const ICON_MAP: Record<string, LucideIcon> = {
   activity: Activity, award: Award, "bar-chart": BarChart, bell: Bell,
   bookmark: Bookmark, briefcase: Briefcase, calendar: Calendar, check: Check,
   "check-circle": CheckCircle, clock: Clock, code: Code, coffee: Coffee,
