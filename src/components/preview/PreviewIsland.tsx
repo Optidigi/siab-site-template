@@ -168,7 +168,7 @@ function PreactBlocks({
   const onClick = (e: Event) => {
     const target = e.target as HTMLElement | null
     if (!target) return
-    if (target.closest("a, button, input, textarea, select, label")) return
+    if (target.closest("a, button, input, textarea, select, label, summary, details")) return
     const blockEl = target.closest("[data-block-index]") as HTMLElement | null
     if (!blockEl) return
     const idx = parseInt(blockEl.getAttribute("data-block-index") ?? "", 10)
