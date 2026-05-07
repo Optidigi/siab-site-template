@@ -10,8 +10,12 @@ type Props = {
 /**
  * Drop-in replacement for <img> that crossfades when `src` changes.
  *
- * SSR-byte-equivalent: server renders a plain <img> with no wrapper div, no
- * JS dependency. On hydration in the preview iframe, prop changes preload
+ * Production-safe: server renders a plain <img> with no wrapper div, no JS
+ * dependency. The output carries an inline `transition`/`opacity` style
+ * attribute, but the transition never fires on tenant pages because no
+ * client-side hydration mounts the SmoothImage component there — only the
+ * preview iframe hydrates it.
+ * On hydration in the preview iframe, prop changes preload
  * the new src, then opacity-fade swap. Tenant production pages never see
  * crossfade behavior because they're not hydrated (server-only render).
  *
