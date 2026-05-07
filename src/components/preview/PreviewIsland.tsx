@@ -15,6 +15,13 @@ type DraftMessage = {
   payload: { page: { blocks: Block[] } }
 }
 
+type FocusBlockMessage = {
+  type: "preview:focus-block"
+  version: 1
+  index: number
+  seq?: number
+}
+
 type Props = {
   allowedOrigin: string
   cmsOrigin: string
@@ -29,23 +36,51 @@ type Props = {
  *  - preview:ready  once after first hydration
  *  - preview:heartbeat  every 30s after ready
  *  - preview:error  on render exceptions (caught by BlockErrorBoundary)
+ *  - preview:click-block  when user clicks a block (cross-pane sync)
+ *
+ * Receives:
+ *  - preview:draft  block tree updates
+ *  - preview:focus-block  scroll + outline a block by index (admin → iframe)
  */
 export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
   const [draft, setDraft] = useState<{ blocks: Block[] } | null>(null)
   const savedScrollRef = useRef<number | null>(null)
+  const lastFocusSeqRef = useRef<number>(-1)
+  const highlightTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== allowedOrigin) return
-      const data = e.data as Partial<DraftMessage> | null
+      const data = e.data as
+        | Partial<DraftMessage>
+        | Partial<FocusBlockMessage>
+        | null
       if (!data || typeof data !== "object") return
       if (data.type === "preview:draft" && data.version === 1) {
-        const page = data.payload?.page
+        const page = (data as DraftMessage).payload?.page
         if (page && Array.isArray(page.blocks)) {
           // Capture scroll BEFORE setDraft so React's commit can restore it.
           savedScrollRef.current = window.scrollY
           setDraft({ blocks: page.blocks })
         }
+      } else if (data.type === "preview:focus-block" && data.version === 1) {
+        const m = data as FocusBlockMessage
+        if (typeof m.seq === "number" && m.seq <= lastFocusSeqRef.current) return
+        if (typeof m.seq === "number") lastFocusSeqRef.current = m.seq
+        if (typeof m.index !== "number") return
+        const el = document.querySelector(
+          `[data-block-index="${m.index}"]`,
+        ) as HTMLElement | null
+        if (!el) return
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        el.classList.add("preview-focused")
+        if (highlightTimerRef.current != null) {
+          clearTimeout(highlightTimerRef.current)
+        }
+        highlightTimerRef.current = window.setTimeout(() => {
+          el.classList.remove("preview-focused")
+          highlightTimerRef.current = null
+        }, 1200)
       }
     }
 
@@ -69,6 +104,9 @@ export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
     return () => {
       window.removeEventListener("message", onMessage)
       clearInterval(heartbeat)
+      if (highlightTimerRef.current != null) {
+        clearTimeout(highlightTimerRef.current)
+      }
     }
   }, [allowedOrigin])
 
@@ -84,12 +122,32 @@ export default function PreviewIsland({ allowedOrigin, cmsOrigin }: Props) {
 
   if (!draft) return null
 
-  return <PreactBlocks blocks={draft.blocks} cmsOrigin={cmsOrigin} />
+  return (
+    <>
+      <style>{`
+        [data-block-index] { transition: outline-color 150ms ease-in-out; outline: 2px solid transparent; outline-offset: 2px; }
+        [data-block-index].preview-focused { outline-color: rgb(59, 130, 246); }
+      `}</style>
+      <PreactBlocks
+        blocks={draft.blocks}
+        cmsOrigin={cmsOrigin}
+        allowedOrigin={allowedOrigin}
+      />
+    </>
+  )
 }
 
 // PreactBlocks: Preact-side mirror of Blocks.astro. Used only inside
 // the preview island; production tenant pages use Blocks.astro directly.
-function PreactBlocks({ blocks, cmsOrigin }: { blocks: Block[]; cmsOrigin: string }) {
+function PreactBlocks({
+  blocks,
+  cmsOrigin,
+  allowedOrigin,
+}: {
+  blocks: Block[]
+  cmsOrigin: string
+  allowedOrigin: string
+}) {
   // Preview-mode resolver: prefer populated url (Payload depth>=1 returns
   // full Media objects); otherwise fall back to CMS-origin id-based path.
   const resolveMedia = (ref: MediaRef): string | null => {
@@ -104,23 +162,48 @@ function PreactBlocks({ blocks, cmsOrigin }: { blocks: Block[]; cmsOrigin: strin
     return null
   }
 
+  // Delegated click — bubble a "click-block" message up to the admin so it
+  // can scroll/focus the matching editor row. Bail when the user clicked
+  // an interactive child so anchors/buttons/inputs keep working.
+  const onClick = (e: Event) => {
+    const target = e.target as HTMLElement | null
+    if (!target) return
+    if (target.closest("a, button, input, textarea, select, label, summary, details")) return
+    const blockEl = target.closest("[data-block-index]") as HTMLElement | null
+    if (!blockEl) return
+    const idx = parseInt(blockEl.getAttribute("data-block-index") ?? "", 10)
+    if (Number.isNaN(idx)) return
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: "preview:click-block", version: 1, index: idx },
+        allowedOrigin,
+      )
+    }
+  }
+
   return (
-    <>
+    <div onClick={onClick}>
       {blocks.map((block, i) => (
         <BlockErrorBoundary key={i} blockType={block.blockType}>
-          <PreactBlock block={block} resolveMedia={resolveMedia} />
+          <PreactBlock
+            block={block}
+            resolveMedia={resolveMedia}
+            dataBlockIndex={i}
+          />
         </BlockErrorBoundary>
       ))}
-    </>
+    </div>
   )
 }
 
 function PreactBlock({
   block,
   resolveMedia,
+  dataBlockIndex,
 }: {
   block: Block
   resolveMedia: (ref: MediaRef) => string | null
+  dataBlockIndex: number
 }) {
   if (block.blockType === "hero") {
     return (
@@ -130,11 +213,12 @@ function PreactBlock({
         subheadline={block.subheadline}
         cta={block.cta}
         imageUrl={resolveMedia(block.image as MediaRef)}
+        dataBlockIndex={dataBlockIndex}
       />
     )
   }
   if (block.blockType === "richText") {
-    return <RichText body={block.body} />
+    return <RichText body={block.body} dataBlockIndex={dataBlockIndex} />
   }
   if (block.blockType === "cta") {
     return (
@@ -143,6 +227,7 @@ function PreactBlock({
         description={block.description}
         primary={block.primary}
         secondary={block.secondary}
+        dataBlockIndex={dataBlockIndex}
       />
     )
   }
@@ -152,6 +237,7 @@ function PreactBlock({
         title={block.title}
         intro={block.intro}
         features={block.features}
+        dataBlockIndex={dataBlockIndex}
       />
     )
   }
@@ -162,10 +248,18 @@ function PreactBlock({
       role: it.role,
       avatarUrl: resolveMedia(it.avatar as MediaRef),
     }))
-    return <Testimonials title={block.title} items={items} />
+    return (
+      <Testimonials
+        title={block.title}
+        items={items}
+        dataBlockIndex={dataBlockIndex}
+      />
+    )
   }
   if (block.blockType === "faq") {
-    return <FAQ title={block.title} items={block.items} />
+    return (
+      <FAQ title={block.title} items={block.items} dataBlockIndex={dataBlockIndex} />
+    )
   }
   if (block.blockType === "contactSection") {
     return (
@@ -174,6 +268,7 @@ function PreactBlock({
         description={block.description}
         formName={block.formName}
         fields={block.fields}
+        dataBlockIndex={dataBlockIndex}
       />
     )
   }

@@ -1,3 +1,5 @@
+import SmoothImage from "./SmoothImage"
+
 /**
  * Hero block renderer (Preact).
  *
@@ -21,6 +23,7 @@ export type HeroProps = {
   // Preview-mode resolver points at CMS origin; production at tenant disk.
   imageUrl?: string | null
   imageAlt?: string | null
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
 export default function Hero({
@@ -30,13 +33,14 @@ export default function Hero({
   cta,
   imageUrl,
   imageAlt,
+  dataBlockIndex,
 }: HeroProps) {
   const ctaLabel = cta?.label?.trim()
   const ctaHref = cta?.href?.trim()
   const showCta = ctaLabel && ctaHref
 
   return (
-    <section class="cms-block cms-block--hero py-16 md:py-24">
+    <section class="cms-block cms-block--hero py-16 md:py-24" data-block-index={dataBlockIndex}>
       <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
         <div class="space-y-4">
           {eyebrow && (
@@ -61,11 +65,10 @@ export default function Hero({
         </div>
         {imageUrl && (
           <div class="md:order-last">
-            <img
+            <SmoothImage
               src={imageUrl}
               alt={imageAlt ?? ""}
               class="w-full h-auto rounded-lg shadow-lg"
-              loading="lazy"
             />
           </div>
         )}

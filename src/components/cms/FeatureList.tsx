@@ -8,12 +8,13 @@ export type FeatureListProps = {
     description?: string | null
     icon?: string | null
   }>
+  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
 }
 
-export default function FeatureList({ title, intro, features }: FeatureListProps) {
+export default function FeatureList({ title, intro, features, dataBlockIndex }: FeatureListProps) {
   if (!features || features.length === 0) return null
   return (
-    <section class="cms-block cms-block--featurelist py-16 md:py-20">
+    <section class="cms-block cms-block--featurelist py-16 md:py-20" data-block-index={dataBlockIndex}>
       <div class="container mx-auto px-4">
         {(title || intro) && (
           <div class="text-center max-w-3xl mx-auto mb-12">
