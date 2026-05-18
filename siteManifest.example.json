@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "inlineMarks": {
+    "bold": true,
+    "italic": true,
+    "underline": true,
+    "code": true,
+    "strikethrough": false
+  },
+  "blockTypes": {
+    "paragraph": true,
+    "heading": { "levels": [2, 3] },
+    "bulletList": true,
+    "orderedList": true,
+    "blockquote": true,
+    "divider": true
+  },
+  "blocks": [
+    { "slug": "hero" },
+    { "slug": "featureList" },
+    { "slug": "richText" },
+    { "slug": "cta" },
+    { "slug": "contactSection" },
+    { "slug": "faq" },
+    { "slug": "testimonials" }
+  ],
+  "typeStyles": [],
+  "colorTokens": [],
+  "themedNodes": [],
+  "cssEntry": "cms-editor.css",
+  "defaultMode": "canvas"
+}
