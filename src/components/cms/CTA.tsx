@@ -1,71 +1,76 @@
+import { RtNodeRenderer } from "./RtNodeRenderer"
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
+import type { RtRoot } from "../../lib/types"
+
 /**
- * CTA block renderer (Preact).
+ * CTA block renderer (Preact). Structure-only.
+ * Props mirror siab-payload/src/blocks/CTA.ts.
  *
- * Props mirror siab-payload/src/blocks/CTA.ts:
- *  - headline: required text
- *  - description: optional textarea
- *  - primary: group { label*, href* }
- *  - secondary: group { label, href }
+ * Variant dispatch on primary.href prefix:
+ *   - mailto: / tel: → cms-block--cta-contact
+ *   - anything else → cms-block--cta-quote
+ * Both share the cms-block--cta base class for shared styling.
  */
 export type CTAProps = {
-  headline: string  // required
-  description?: string | null
-  primary?: {
-    label?: string | null
-    href?: string | null
-  } | null
-  secondary?: {
-    label?: string | null
-    href?: string | null
-  } | null
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+  anchor?: string | null
+  eyebrow?: RtRoot | null
+  headline: RtRoot
+  description?: RtRoot | null
+  primary: { label: string; href: string }
+  secondary?: { label?: string | null; href?: string | null } | null
+  dataBlockIndex?: number
 }
 
-export default function CTA({
-  headline,
-  description,
-  primary,
-  secondary,
-  dataBlockIndex,
-}: CTAProps) {
-  const primaryLabel = primary?.label?.trim()
-  const primaryHref = primary?.href?.trim()
-  const showPrimary = primaryLabel && primaryHref
+function variantFor(href: string): "contact" | "quote" {
+  if (href.startsWith("mailto:") || href.startsWith("tel:")) return "contact"
+  return "quote"
+}
 
+export default function CTA(props: CTAProps) {
+  const { anchor, eyebrow, headline, description, primary, secondary, dataBlockIndex } = props
+  const variant = variantFor(primary.href)
   const secondaryLabel = secondary?.label?.trim()
   const secondaryHref = secondary?.href?.trim()
   const showSecondary = secondaryLabel && secondaryHref
-
   return (
-    <section class="cms-block cms-block--cta py-16 md:py-20" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4 text-center max-w-3xl">
-        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
-          {headline}
-        </h2>
-        {description && (
-          <p class="mt-4 text-lg text-muted-foreground">{description}</p>
-        )}
-        {(showPrimary || showSecondary) && (
-          <div class="mt-8 flex flex-wrap justify-center gap-3">
-            {showPrimary && (
-              <a
-                href={primaryHref}
-                class="inline-block rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                {primaryLabel}
-              </a>
-            )}
-            {showSecondary && (
-              <a
-                href={secondaryHref}
-                class="inline-block rounded-md border border-border bg-background px-6 py-3 font-medium hover:bg-accent transition-colors"
-              >
-                {secondaryLabel}
-              </a>
-            )}
+    <BlockErrorBoundary blockType="cta">
+      <section
+        id={anchor || undefined}
+        class={`cms-block cms-block--cta cms-block--cta-${variant}`}
+        data-block-index={dataBlockIndex}
+      >
+        {eyebrow && (
+          <div class="cms-block__eyebrow" style={{ fontFamily: "var(--font-script)" }}>
+            <RtNodeRenderer node={eyebrow} />
           </div>
         )}
-      </div>
-    </section>
+        <h2 class="cms-block__title" style={{ fontFamily: "var(--font-heading)" }}>
+          <RtNodeRenderer node={headline} />
+        </h2>
+        {description && (
+          <div class="cms-block__description" style={{ fontFamily: "var(--font-text)" }}>
+            <RtNodeRenderer node={description} />
+          </div>
+        )}
+        <div class="cms-block__cta-actions">
+          <a
+            class="cms-block__cta cms-block__cta--primary"
+            href={primary.href}
+            style={{ borderRadius: "var(--radius-md)" }}
+          >
+            {primary.label}
+          </a>
+          {showSecondary && (
+            <a
+              class="cms-block__cta cms-block__cta--secondary"
+              href={secondaryHref}
+              style={{ borderRadius: "var(--radius-md)" }}
+            >
+              {secondaryLabel}
+            </a>
+          )}
+        </div>
+      </section>
+    </BlockErrorBoundary>
   )
 }
