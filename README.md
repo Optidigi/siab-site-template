@@ -36,3 +36,11 @@ See `.env.example`. `SITE_URL` is the only one the build needs;
 The orchestrator copies the template into `sandbox/site-<slug>/` and works there.
 Edits to this template apply to *all future* sites. Land them in a PR and pull
 into `siab-site-template/` on disk before starting the next engagement.
+
+## Rich-text rendering contract
+
+This template ships the `rt-*` class contract per `siab-payload/docs/runbooks/rt-dom-contract.md`. Block renderers in `src/components/cms/` consume `RtRoot` shapes via `RtNodeRenderer.tsx`. Role tokens (`--font-{title,heading,text}`, `--radius-{sm,md,lg}`) declared in `global.css @theme {}` are placeholders — themes override during siab-site-orchestrator Phase 3 integration.
+
+The post-CMS-ification SSR flow (the `site-converter` subagent in `siab-payload-orchestrator`) wires these renderers to Payload data; in static-mode they remain inert until the CMS-ification phase runs.
+
+Per-tenant block menu subsetting + themed-node declarations + type styles + color tokens live in `siteManifest.example.json` (this template ships a generic example). Tenant forks customise it; `siab-payload-orchestrator` Phase 4 reads it and seeds `Tenant.siteManifest`.
