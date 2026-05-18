@@ -11,15 +11,18 @@ export type MediaRef =
 
 export type HeroBlock = {
   blockType: "hero"
+  anchor?: string | null
   eyebrow?: RtRoot | null
   headline: RtRoot
   subheadline?: RtRoot | null
+  pills?: Array<{ label: string; id?: string | null }>
   cta?: { label?: string | null; href?: string | null } | null
   image?: MediaRef
 }
 
 export type FeatureListBlock = {
   blockType: "featureList"
+  anchor?: string | null
   title?: RtRoot | null
   intro?: RtRoot | null
   features: Array<{
@@ -31,6 +34,7 @@ export type FeatureListBlock = {
 
 export type TestimonialsBlock = {
   blockType: "testimonials"
+  anchor?: string | null
   title?: string | null
   items: Array<{
     quote: string
@@ -42,12 +46,14 @@ export type TestimonialsBlock = {
 
 export type FAQBlock = {
   blockType: "faq"
+  anchor?: string | null
   title?: RtRoot | null
   items: Array<{ question: RtRoot; answer: RtRoot }>
 }
 
 export type CTABlock = {
   blockType: "cta"
+  anchor?: string | null
   eyebrow?: RtRoot | null
   headline: RtRoot
   description?: RtRoot | null
@@ -57,11 +63,13 @@ export type CTABlock = {
 
 export type RichTextBlock = {
   blockType: "richText"
+  anchor?: string | null
   body: RtRoot
 }
 
 export type ContactSectionBlock = {
   blockType: "contactSection"
+  anchor?: string | null
   title?: RtRoot | null
   description?: RtRoot | null
   formName: string
