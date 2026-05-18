@@ -1,76 +1,93 @@
-export type ContactSectionProps = {
-  title?: string | null
-  description?: string | null
-  formName: string
-  fields: Array<{
-    name: string
-    label: string
-    type: "text" | "email" | "tel" | "textarea"
-    required?: boolean
-  }>
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+import { RtNodeRenderer } from "./RtNodeRenderer"
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
+import type { RtRoot } from "../../lib/types"
+
+/**
+ * ContactSection block renderer (Preact). Structure-only.
+ * Props mirror siab-payload/src/blocks/ContactSection.ts.
+ *
+ * title + description are RtRoot. formName + fields define the form.
+ * No submitLabel field today — hardcoded "Send" pending OBS-42.
+ * The form ITSELF (submission, validation, success state) is wired by
+ * the tenant's page-level code or a form-handling integration; this
+ * renderer just emits the form markup.
+ */
+export type ContactSectionField = {
+  name: string
+  label: string
+  type: "text" | "email" | "tel" | "textarea"
+  required?: boolean
 }
 
-export default function ContactSection({
-  title,
-  description,
-  formName,
-  fields,
-  dataBlockIndex,
-}: ContactSectionProps) {
-  if (!fields || fields.length === 0) return null
+export type ContactSectionProps = {
+  anchor?: string | null
+  title?: RtRoot | null
+  description?: RtRoot | null
+  formName: string
+  fields: ContactSectionField[]
+  dataBlockIndex?: number
+}
+
+export default function ContactSection(props: ContactSectionProps) {
+  const { anchor, title, description, formName, fields, dataBlockIndex } = props
   return (
-    <section class="cms-block cms-block--contact py-16 md:py-20" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4 max-w-2xl">
+    <BlockErrorBoundary blockType="contactSection">
+      <section
+        id={anchor || undefined}
+        class="cms-block cms-block--contact"
+        data-block-index={dataBlockIndex}
+      >
         {title && (
-          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">{title}</h2>
+          <h2 class="cms-block__title" style={{ fontFamily: "var(--font-heading)" }}>
+            <RtNodeRenderer node={title} />
+          </h2>
         )}
         {description && (
-          <p class="mt-3 text-lg text-muted-foreground">{description}</p>
+          <div class="cms-block__description" style={{ fontFamily: "var(--font-text)" }}>
+            <RtNodeRenderer node={description} />
+          </div>
         )}
         <form
+          class="cms-block__form"
           name={formName}
           method="POST"
-          action="/api/forms"
-          class="mt-8 space-y-4"
+          style={{ borderRadius: "var(--radius-md)" }}
         >
-          <input type="hidden" name="formName" value={formName} />
-          {fields.map((field) => (
-            <div key={field.name} class="space-y-1.5">
-              <label
-                htmlFor={`f-${field.name}`}
-                class="block text-sm font-medium"
-              >
-                {field.label}
-                {field.required && <span class="text-destructive"> *</span>}
+          <input type="hidden" name="form-name" value={formName} />
+          {fields.map((f) => (
+            <div key={f.name} class="cms-block__form-field">
+              <label class="cms-block__form-label" htmlFor={`field-${f.name}`}>
+                {f.label}{f.required ? " *" : ""}
               </label>
-              {field.type === "textarea" ? (
+              {f.type === "textarea" ? (
                 <textarea
-                  id={`f-${field.name}`}
-                  name={field.name}
-                  required={!!field.required}
-                  rows={5}
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  id={`field-${f.name}`}
+                  class="cms-block__form-input cms-block__form-input--textarea"
+                  name={f.name}
+                  required={f.required ?? false}
+                  style={{ borderRadius: "var(--radius-sm)", fontFamily: "var(--font-text)" }}
                 />
               ) : (
                 <input
-                  id={`f-${field.name}`}
-                  name={field.name}
-                  type={field.type}
-                  required={!!field.required}
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  id={`field-${f.name}`}
+                  class="cms-block__form-input"
+                  type={f.type}
+                  name={f.name}
+                  required={f.required ?? false}
+                  style={{ borderRadius: "var(--radius-sm)", fontFamily: "var(--font-text)" }}
                 />
               )}
             </div>
           ))}
           <button
             type="submit"
-            class="rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            class="cms-block__form-submit"
+            style={{ borderRadius: "var(--radius-md)" }}
           >
             Send
           </button>
         </form>
-      </div>
-    </section>
+      </section>
+    </BlockErrorBoundary>
   )
 }
