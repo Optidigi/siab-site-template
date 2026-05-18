@@ -1,78 +1,81 @@
+import { RtNodeRenderer } from "./RtNodeRenderer"
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
 import SmoothImage from "./SmoothImage"
+import type { RtRoot } from "../../lib/types"
 
 /**
- * Hero block renderer (Preact).
+ * Hero block renderer (Preact). Structure-only — no Tailwind decoration.
+ * Themes layer all visual styling via tenant-theme.css.
  *
- * Server-rendered on tenant pages (0 KB JS). On the /__preview route,
- * hydrates client-side via PreviewIsland so postMessage updates trigger
- * React reconciliation in <50ms.
- *
- * Props mirror siab-payload/src/blocks/Hero.ts exactly. Optional fields
- * render gracefully — important for live-preview UX where fields fill
- * in mid-edit.
+ * Props mirror siab-payload/src/blocks/Hero.ts. Image upload is resolved
+ * to a URL by the dispatcher (PreviewIsland today; Blocks.astro after
+ * CMS-ification) — renderer receives imageUrl, not an upload ref.
  */
 export type HeroProps = {
-  eyebrow?: string | null
-  headline: string  // required by CMS Block
-  subheadline?: string | null
-  cta?: {
-    label?: string | null
-    href?: string | null
-  } | null
-  // image is resolved to a URL by Blocks.astro before reaching here.
-  // Preview-mode resolver points at CMS origin; production at tenant disk.
+  anchor?: string | null
+  eyebrow?: RtRoot | null
+  headline: RtRoot
+  subheadline?: RtRoot | null
+  pills?: Array<{ label: string; id?: string | null }>
+  cta?: { label?: string | null; href?: string | null } | null
   imageUrl?: string | null
   imageAlt?: string | null
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+  dataBlockIndex?: number  // PreviewIsland-only; absent in production
 }
 
-export default function Hero({
-  eyebrow,
-  headline,
-  subheadline,
-  cta,
-  imageUrl,
-  imageAlt,
-  dataBlockIndex,
-}: HeroProps) {
+export default function Hero(props: HeroProps) {
+  const { anchor, eyebrow, headline, subheadline, pills, cta, imageUrl, imageAlt, dataBlockIndex } = props
   const ctaLabel = cta?.label?.trim()
   const ctaHref = cta?.href?.trim()
   const showCta = ctaLabel && ctaHref
-
   return (
-    <section class="cms-block cms-block--hero py-16 md:py-24" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-        <div class="space-y-4">
-          {eyebrow && (
-            <p class="text-sm font-semibold uppercase tracking-wider text-primary">
-              {eyebrow}
-            </p>
-          )}
-          <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
-            {headline}
-          </h1>
-          {subheadline && (
-            <p class="text-lg text-muted-foreground">{subheadline}</p>
-          )}
-          {showCta && (
-            <a
-              href={ctaHref}
-              class="inline-block rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              {ctaLabel}
-            </a>
-          )}
-        </div>
-        {imageUrl && (
-          <div class="md:order-last">
-            <SmoothImage
-              src={imageUrl}
-              alt={imageAlt ?? ""}
-              class="w-full h-auto rounded-lg shadow-lg"
-            />
+    <BlockErrorBoundary blockType="hero">
+      <section
+        id={anchor || undefined}
+        class="cms-block cms-block--hero"
+        data-block-index={dataBlockIndex}
+      >
+        {eyebrow && (
+          <div class="cms-block__eyebrow">
+            <RtNodeRenderer node={eyebrow} />
           </div>
         )}
-      </div>
-    </section>
+        <h1 class="cms-block__title" style={{ fontFamily: "var(--font-title)" }}>
+          <RtNodeRenderer node={headline} />
+        </h1>
+        {subheadline && (
+          <div class="cms-block__subheadline" style={{ fontFamily: "var(--font-text)" }}>
+            <RtNodeRenderer node={subheadline} />
+          </div>
+        )}
+        {pills && pills.length > 0 && (
+          <ul class="cms-block__pills">
+            {pills.map((p, i) => (
+              <li
+                key={p.id ?? i}
+                class="cms-block__pill"
+                style={{ borderRadius: "var(--radius-sm)" }}
+              >
+                {p.label}
+              </li>
+            ))}
+          </ul>
+        )}
+        {showCta && (
+          <a
+            class="cms-block__cta"
+            href={ctaHref}
+            style={{ borderRadius: "var(--radius-md)" }}
+          >
+            {ctaLabel}
+          </a>
+        )}
+        {imageUrl && (
+          <figure class="cms-block__image" style={{ borderRadius: "var(--radius-lg)" }}>
+            <SmoothImage src={imageUrl} alt={imageAlt ?? ""} />
+          </figure>
+        )}
+      </section>
+    </BlockErrorBoundary>
   )
 }
