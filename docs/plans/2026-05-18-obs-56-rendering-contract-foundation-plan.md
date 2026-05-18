@@ -10,6 +10,8 @@
 
 **Spec:** `docs/specs/2026-05-18-obs-56-rendering-contract-foundation-design.md`
 
+**Tests in this plan are one-shot validation scaffolding** — written for the implementer to verify renderer correctness during development; **stripped from the template (along with their devDeps) in the final cleanup task** before the branch ships. The template is scaffolding-source-of-truth that gets cloned into per-tenant sites; permanent renderer tests belong in tenant smoke tests / siab-payload's canvas tests / the cms-reviewer subagent, NOT in the template.
+
 **Spec corrections this plan applies inline** (the spec was written before reading siab-payload's exact source — these are the authoritative shapes):
 - `RtText.marks` is `RtMark[]` (string array), NOT `{bold?: boolean, ...}` object — per `siab-payload/src/lib/richText/RtNode.ts`
 - `RtList` has `items: RtListItem[]`, NOT `children`
@@ -1451,12 +1453,67 @@ If Steps 1-4 all passed cleanly, no commit needed — Task 14 is complete on a g
 
 ---
 
+## Task 15: Strip test scaffolding from the template
+
+**Files:**
+- Delete: `tests/cms/RtNodeRenderer.test.tsx`
+- Delete: `tests/cms/` directory if empty after the test file is removed
+- Modify: `package.json` (remove `@testing-library/preact`, `@testing-library/dom`, `jsdom` from devDependencies IF Task 2 added them — if they were already present for other reasons, leave them)
+
+- [ ] **Step 1: Delete the test file**
+
+```bash
+rm tests/cms/RtNodeRenderer.test.tsx
+rmdir tests/cms 2>/dev/null || true   # remove dir if empty
+```
+
+- [ ] **Step 2: Remove test deps from package.json IF Task 2 added them**
+
+Inspect `package.json` for `@testing-library/preact`, `@testing-library/dom`, `jsdom` in devDependencies. Cross-check Task 2's commit (`git show <task-2-sha> -- package.json`) — if Task 2 added these, remove them now. If they were already present at the time of Task 1's verification (`git show e6657c9 -- package.json`), leave them — they served some other purpose pre-OBS-56.
+
+If removing:
+
+```bash
+pnpm remove @testing-library/preact @testing-library/dom jsdom
+```
+
+Then verify `pnpm-lock.yaml` updated cleanly.
+
+- [ ] **Step 3: Confirm typecheck + build still pass without the test infrastructure**
+
+```bash
+pnpm astro check
+pnpm build
+```
+
+Expected: both clean. Removing tests + their deps doesn't break the runtime — they were dev-only.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add tests/ package.json pnpm-lock.yaml
+git commit -m "$(cat <<'EOF'
+chore(template): strip RtNodeRenderer test scaffolding
+
+Tests in Task 2 were one-shot validation during OBS-56 development.
+Stripping them + their devDeps now per template-as-scaffold convention:
+the template is cloned into per-tenant sites; permanent renderer tests
+belong in tenant smoke tests / siab-payload canvas tests / cms-reviewer,
+NOT in the template itself.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
 ## Done — what got built
 
-After all 14 tasks:
+After all 15 tasks:
 
 1. **`src/lib/types.ts`** — RtNode union mirrored from siab-payload (corrected per actual source, not the spec's earlier guesses)
-2. **`src/components/cms/RtNodeRenderer.tsx`** — Preact walker over RtNode tree per rt-dom-contract, with 12 unit tests
+2. **`src/components/cms/RtNodeRenderer.tsx`** — Preact walker over RtNode tree per rt-dom-contract (tests stripped in Task 15)
 3. **`src/styles/rich-text.css`** — baseline `rt-*` class styles using theme tokens
 4. **`src/styles/global.css`** — extended with role tokens (`--font-*`, `--radius-*`) + imports rich-text.css
 5. **`src/components/cms/*.tsx`** (×7) — all rewritten: RtRoot props for rich-text fields, optional `anchor` prop stamped as `id={anchor || undefined}`, role tokens via inline `style`, structure-only (no Tailwind decoration), wrapped in `BlockErrorBoundary`
