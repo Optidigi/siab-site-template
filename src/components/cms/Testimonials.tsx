@@ -1,54 +1,62 @@
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
 import SmoothImage from "./SmoothImage"
 
+/**
+ * Testimonials block renderer (Preact). Structure-only.
+ * Props mirror siab-payload/src/blocks/Testimonials.ts.
+ * title is plain text (NOT rich text). quote is plain textarea string.
+ * avatar resolved to avatarUrl by the dispatcher.
+ */
 export type TestimonialsProps = {
+  anchor?: string | null
   title?: string | null
   items: Array<{
     quote: string
     author: string
     role?: string | null
-    avatarUrl?: string | null  // resolved by Blocks.astro
+    avatarUrl?: string | null
   }>
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+  dataBlockIndex?: number
 }
 
-export default function Testimonials({ title, items, dataBlockIndex }: TestimonialsProps) {
+export default function Testimonials(props: TestimonialsProps) {
+  const { anchor, title, items, dataBlockIndex } = props
   if (!items || items.length === 0) return null
   return (
-    <section class="cms-block cms-block--testimonials py-16 md:py-20 bg-muted/30" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4">
+    <BlockErrorBoundary blockType="testimonials">
+      <section
+        id={anchor || undefined}
+        class="cms-block cms-block--testimonials"
+        data-block-index={dataBlockIndex}
+      >
         {title && (
-          <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
+          <h2 class="cms-block__title" style={{ fontFamily: "var(--font-heading)" }}>
             {title}
           </h2>
         )}
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item, i) => (
-            <figure
+        <ul class="cms-block__testimonials-list">
+          {items.map((t, i) => (
+            <li
               key={i}
-              class="rounded-lg border border-border bg-background p-6 flex flex-col"
+              class="cms-block__testimonial"
+              style={{ borderRadius: "var(--radius-lg)" }}
             >
-              <blockquote class="flex-1 text-base leading-relaxed">
-                "{item.quote}"
+              <blockquote class="cms-block__testimonial-quote" style={{ fontFamily: "var(--font-text)" }}>
+                {t.quote}
               </blockquote>
-              <figcaption class="mt-4 flex items-center gap-3">
-                {item.avatarUrl && (
-                  <SmoothImage
-                    src={item.avatarUrl}
-                    alt=""
-                    class="h-10 w-10 rounded-full object-cover"
-                  />
+              <figcaption class="cms-block__testimonial-attrib">
+                {t.avatarUrl && (
+                  <span class="cms-block__testimonial-avatar" style={{ borderRadius: "var(--radius-lg)" }}>
+                    <SmoothImage src={t.avatarUrl} alt={t.author} />
+                  </span>
                 )}
-                <div>
-                  <div class="font-semibold">{item.author}</div>
-                  {item.role && (
-                    <div class="text-sm text-muted-foreground">{item.role}</div>
-                  )}
-                </div>
+                <span class="cms-block__testimonial-author">{t.author}</span>
+                {t.role && <span class="cms-block__testimonial-role">{t.role}</span>}
               </figcaption>
-            </figure>
+            </li>
           ))}
-        </div>
-      </div>
-    </section>
+        </ul>
+      </section>
+    </BlockErrorBoundary>
   )
 }
