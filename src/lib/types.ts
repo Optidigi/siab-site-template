@@ -11,20 +11,20 @@ export type MediaRef =
 
 export type HeroBlock = {
   blockType: "hero"
-  eyebrow?: string | null
-  headline: string
-  subheadline?: string | null
+  eyebrow?: RtRoot | null
+  headline: RtRoot
+  subheadline?: RtRoot | null
   cta?: { label?: string | null; href?: string | null } | null
   image?: MediaRef
 }
 
 export type FeatureListBlock = {
   blockType: "featureList"
-  title?: string | null
-  intro?: string | null
+  title?: RtRoot | null
+  intro?: RtRoot | null
   features: Array<{
-    title: string
-    description?: string | null
+    title: RtRoot
+    description?: RtRoot | null
     icon?: string | null
   }>
 }
@@ -42,27 +42,28 @@ export type TestimonialsBlock = {
 
 export type FAQBlock = {
   blockType: "faq"
-  title?: string | null
-  items: Array<{ question: string; answer: string }>
+  title?: RtRoot | null
+  items: Array<{ question: RtRoot; answer: RtRoot }>
 }
 
 export type CTABlock = {
   blockType: "cta"
-  headline: string
-  description?: string | null
-  primary?: { label?: string | null; href?: string | null } | null
+  eyebrow?: RtRoot | null
+  headline: RtRoot
+  description?: RtRoot | null
+  primary: { label: string; href: string }
   secondary?: { label?: string | null; href?: string | null } | null
 }
 
 export type RichTextBlock = {
   blockType: "richText"
-  body: string
+  body: RtRoot
 }
 
 export type ContactSectionBlock = {
   blockType: "contactSection"
-  title?: string | null
-  description?: string | null
+  title?: RtRoot | null
+  description?: RtRoot | null
   formName: string
   fields: Array<{
     name: string
