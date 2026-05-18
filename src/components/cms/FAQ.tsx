@@ -1,38 +1,54 @@
+import { RtNodeRenderer } from "./RtNodeRenderer"
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
+import type { RtRoot } from "../../lib/types"
+
+/**
+ * FAQ block renderer (Preact). Structure-only.
+ * Props mirror siab-payload/src/blocks/FAQ.ts.
+ * title is optional RtRoot (inline variant). Each item's question + answer are RtRoot.
+ */
 export type FAQProps = {
-  title?: string | null
-  items: Array<{ question: string; answer: string }>
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+  anchor?: string | null
+  title?: RtRoot | null
+  items: Array<{
+    question: RtRoot
+    answer: RtRoot
+  }>
+  dataBlockIndex?: number
 }
 
-export default function FAQ({ title, items, dataBlockIndex }: FAQProps) {
+export default function FAQ(props: FAQProps) {
+  const { anchor, title, items, dataBlockIndex } = props
   if (!items || items.length === 0) return null
   return (
-    <section class="cms-block cms-block--faq py-16 md:py-20" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4 max-w-3xl">
+    <BlockErrorBoundary blockType="faq">
+      <section
+        id={anchor || undefined}
+        class="cms-block cms-block--faq"
+        data-block-index={dataBlockIndex}
+      >
         {title && (
-          <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-center mb-10">
-            {title}
+          <h2 class="cms-block__title" style={{ fontFamily: "var(--font-heading)" }}>
+            <RtNodeRenderer node={title} />
           </h2>
         )}
-        <dl class="space-y-4">
+        <dl class="cms-block__faq-list">
           {items.map((item, i) => (
             <details
               key={i}
-              class="rounded-lg border border-border bg-card p-4 group"
+              class="cms-block__faq-item"
+              style={{ borderRadius: "var(--radius-md)" }}
             >
-              <summary class="cursor-pointer list-none flex items-center justify-between font-medium">
-                <span>{item.question}</span>
-                <span class="text-muted-foreground group-open:rotate-180 transition-transform" aria-hidden>
-                  ▾
-                </span>
+              <summary class="cms-block__faq-question" style={{ fontFamily: "var(--font-heading)" }}>
+                <RtNodeRenderer node={item.question} />
               </summary>
-              <div class="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                {item.answer}
+              <div class="cms-block__faq-answer" style={{ fontFamily: "var(--font-text)" }}>
+                <RtNodeRenderer node={item.answer} />
               </div>
             </details>
           ))}
         </dl>
-      </div>
-    </section>
+      </section>
+    </BlockErrorBoundary>
   )
 }
