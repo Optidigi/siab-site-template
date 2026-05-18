@@ -1,48 +1,67 @@
-import { resolveIcon } from "./icons"
+import { RtNodeRenderer } from "./RtNodeRenderer"
+import { BlockErrorBoundary } from "./BlockErrorBoundary"
+import { ICON_MAP } from "./icons"
+import type { RtRoot } from "../../lib/types"
 
+/**
+ * FeatureList block renderer (Preact). Structure-only.
+ * Props mirror siab-payload/src/blocks/FeatureList.ts.
+ */
 export type FeatureListProps = {
-  title?: string | null
-  intro?: string | null
+  anchor?: string | null
+  title?: RtRoot | null
+  intro?: RtRoot | null
   features: Array<{
-    title: string
-    description?: string | null
+    title: RtRoot
+    description?: RtRoot | null
     icon?: string | null
   }>
-  dataBlockIndex?: number  // set by PreviewIsland's PreactBlocks; absent in production
+  dataBlockIndex?: number
 }
 
-export default function FeatureList({ title, intro, features, dataBlockIndex }: FeatureListProps) {
+export default function FeatureList(props: FeatureListProps) {
+  const { anchor, title, intro, features, dataBlockIndex } = props
   if (!features || features.length === 0) return null
   return (
-    <section class="cms-block cms-block--featurelist py-16 md:py-20" data-block-index={dataBlockIndex}>
-      <div class="container mx-auto px-4">
-        {(title || intro) && (
-          <div class="text-center max-w-3xl mx-auto mb-12">
-            {title && (
-              <h2 class="text-3xl md:text-4xl font-bold tracking-tight">{title}</h2>
-            )}
-            {intro && (
-              <p class="mt-4 text-lg text-muted-foreground">{intro}</p>
-            )}
+    <BlockErrorBoundary blockType="featureList">
+      <section
+        id={anchor || undefined}
+        class="cms-block cms-block--featurelist"
+        data-block-index={dataBlockIndex}
+      >
+        {title && (
+          <h2 class="cms-block__title" style={{ fontFamily: "var(--font-heading)" }}>
+            <RtNodeRenderer node={title} />
+          </h2>
+        )}
+        {intro && (
+          <div class="cms-block__intro" style={{ fontFamily: "var(--font-text)" }}>
+            <RtNodeRenderer node={intro} />
           </div>
         )}
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, i) => {
-            const Icon = resolveIcon(feature.icon)
+        <ul class="cms-block__features">
+          {features.map((f, i) => {
+            const Icon = f.icon ? ICON_MAP[f.icon] : null
             return (
-              <div key={i} class="rounded-lg border border-border bg-card p-6">
-                {Icon && <Icon size={28} class="text-primary mb-3" />}
-                <h3 class="text-lg font-semibold">{feature.title}</h3>
-                {feature.description && (
-                  <p class="mt-2 text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
+              <li
+                key={i}
+                class="cms-block__feature"
+                style={{ borderRadius: "var(--radius-lg)" }}
+              >
+                {Icon && <span class="cms-block__feature-icon"><Icon /></span>}
+                <h3 class="cms-block__feature-title" style={{ fontFamily: "var(--font-heading)" }}>
+                  <RtNodeRenderer node={f.title} />
+                </h3>
+                {f.description && (
+                  <div class="cms-block__feature-description" style={{ fontFamily: "var(--font-text)" }}>
+                    <RtNodeRenderer node={f.description} />
+                  </div>
                 )}
-              </div>
+              </li>
             )
           })}
-        </div>
-      </div>
-    </section>
+        </ul>
+      </section>
+    </BlockErrorBoundary>
   )
 }
