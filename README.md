@@ -44,3 +44,52 @@ This template ships the `rt-*` class contract per `siab-payload/docs/runbooks/rt
 The post-CMS-ification SSR flow (the `site-converter` subagent in `siab-payload-orchestrator`) wires these renderers to Payload data; in static-mode they remain inert until the CMS-ification phase runs.
 
 Per-tenant block menu subsetting + themed-node declarations + type styles + color tokens live in `siteManifest.example.json` (this template ships a generic example). Tenant forks customise it; `siab-payload-orchestrator` Phase 4 reads it and seeds `Tenant.siteManifest`.
+
+## `siteManifest.blocks[]` — the per-tenant CMS block menu
+
+`siteManifest.blocks[]` is the source of truth for **which block types the CMS shows in the "Add block" menu for this tenant**. The CMS reads it at edit time (`BlockPresetsContext`) and enforces it at save time (`enforceTenantBlockMenu` hook in siab-payload).
+
+### Behaviour
+
+- **Field present and non-empty**: the CMS shows only the listed block types. Saves that introduce blocks outside the declared set are rejected with `Page contains block types not in this tenant's manifest`.
+- **Field absent (or `blocks` not set)**: the CMS falls back to **all 7 block types visible** — backwards-compatible default for tenants that haven't declared a menu.
+
+### Valid slugs
+
+These are the 7 canonical block slugs registered in `siab-payload/src/blocks/`. Use these verbatim in `blocks[]` — unknown slugs are dropped with a console warning (`[resolveAllowedBlocks] manifest declares unknown block slug: <slug>; skipping`):
+
+| Slug | Block |
+|---|---|
+| `hero` | Hero — headline, subheadline, image, pills, CTA |
+| `featureList` | Feature list (camelCase) — grid of feature cards |
+| `testimonials` | Testimonials carousel/grid |
+| `faq` | FAQ — accordion |
+| `cta` | Standalone CTA block |
+| `richText` | Rich-text block (camelCase) — long-form body content |
+| `contactSection` | Contact form section (camelCase) |
+
+### Item shape
+
+Each entry is an object:
+
+```json
+{ "slug": "hero", "label": "Hero", "defaultAnchor": "top" }
+```
+
+- `slug` — required; one of the 7 above
+- `label` — optional; UI label override (defaults to the block's registered label)
+- `defaultAnchor` — optional; pre-fills the `anchor` field when a new instance is inserted via the canvas (per OBS-58 — feature dormant until the registry-side `useCanvasBlocks(manifest)` passthrough lands)
+
+Duplicates rejected at schema time.
+
+### Authoring guidance
+
+Start from `siteManifest.example.json` (this template's all-7-blocks default). Subset for tenants that only use a slice of the menu — most one-page brochure sites need only `hero` + `featureList` + `richText` + `cta`. Removing FAQ/testimonials/contactSection from `blocks[]` removes them from the admin's "Add block" menu entirely, which keeps the authoring surface focused.
+
+### Integration touchpoints
+
+- **`siab-payload-orchestrator/.claude/agents/payload-seeder.md` § "Seed Tenant.siteManifest"** — Phase 4 reads `${SITE_REPO}/siteManifest.json` (or falls back to `siteManifest.example.json`) and PATCHes it onto `Tenant.siteManifest`.
+- **`siab-site-orchestrator/.claude/agents/reviewer.md` § Phase 7 gate** — requires `siteManifest.json` at the site repo root before sign-off.
+- **`siab-payload/src/lib/richText/manifest.ts`** — Zod schema; canonical validation source.
+- **`siab-payload/src/hooks/enforceTenantBlockMenu.ts`** — save-time gate.
+- **`siab-payload/src/components/editor/BlockPresetsContext.tsx`** — UI-side filter for the "Add block" menu.
