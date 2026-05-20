@@ -73,6 +73,7 @@ export type ContactSectionBlock = {
   title?: RtRoot | null
   description?: RtRoot | null
   formName: string
+  submitLabel?: string | null
   fields: Array<{
     name: string
     label: string

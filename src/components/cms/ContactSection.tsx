@@ -6,8 +6,8 @@ import type { RtRoot } from "../../lib/types"
  * ContactSection block renderer (Preact). Structure-only.
  * Props mirror siab-payload/src/blocks/ContactSection.ts.
  *
- * title + description are RtRoot. formName + fields define the form.
- * No submitLabel field today — hardcoded "Send" pending OBS-42.
+ * title + description are RtRoot. formName + submitLabel + fields
+ * define the form.
  * The form ITSELF (submission, validation, success state) is wired by
  * the tenant's page-level code or a form-handling integration; this
  * renderer just emits the form markup.
@@ -24,12 +24,13 @@ export type ContactSectionProps = {
   title?: RtRoot | null
   description?: RtRoot | null
   formName: string
+  submitLabel?: string | null
   fields: ContactSectionField[]
   dataBlockIndex?: number
 }
 
 export default function ContactSection(props: ContactSectionProps) {
-  const { anchor, title, description, formName, fields, dataBlockIndex } = props
+  const { anchor, title, description, formName, submitLabel, fields, dataBlockIndex } = props
   return (
     <BlockErrorBoundary blockType="contactSection">
       <section
@@ -84,7 +85,7 @@ export default function ContactSection(props: ContactSectionProps) {
             class="cms-block__form-submit"
             style={{ borderRadius: "var(--radius-md)" }}
           >
-            Send
+            {submitLabel ?? "Send"}
           </button>
         </form>
       </section>

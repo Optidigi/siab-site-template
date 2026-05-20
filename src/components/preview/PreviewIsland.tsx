@@ -267,6 +267,7 @@ function PreactBlock({
         title={block.title}
         description={block.description}
         formName={block.formName}
+        submitLabel={block.submitLabel}
         fields={block.fields}
         dataBlockIndex={dataBlockIndex}
       />
