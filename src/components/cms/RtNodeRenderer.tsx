@@ -1,12 +1,14 @@
 import type {
-  RtNode, RtText
+  RtInline,
+  RtNode,
+  RtText,
 } from "../../lib/types"
 
 export function RtNodeRenderer({ node }: { node: RtNode | null | undefined }) {
   if (!node) return null
   switch (node.t) {
     case "root":
-      return <>{(node.children as RtNode[] | undefined ?? []).map((c, i) => <RtNodeRenderer key={i} node={c} />)}</>
+      return <>{node.children.map((c, i) => <RtNodeRenderer key={i} node={c} />)}</>
     case "paragraph":
       return <p class="rt-p" style={node.align ? `text-align:${node.align}` : undefined}>
         {(node.children ?? []).map((c, i) => <RtNodeRenderer key={i} node={c} />)}
@@ -39,7 +41,7 @@ export function RtNodeRenderer({ node }: { node: RtNode | null | undefined }) {
       return <br />
     case "link":
       return <a class="rt-link" href={node.href} rel={node.rel} target={node.rel === "external" ? "_blank" : undefined}>
-        {(node.children ?? []).map((c, i) => <RtNodeRenderer key={i} node={c} />)}
+        {renderInlineChildren(node.children)}
       </a>
     case "themed":
       return <div class={`rt-themed rt-themed-${node.id}`} data-rt-id={node.id}>
@@ -48,6 +50,10 @@ export function RtNodeRenderer({ node }: { node: RtNode | null | undefined }) {
     case "text":
       return <RtTextNode node={node} />
   }
+}
+
+function renderInlineChildren(children: RtInline[]) {
+  return children.map((c, i) => <RtNodeRenderer key={i} node={c} />)
 }
 
 function RtTextNode({ node }: { node: RtText }) {
