@@ -66,5 +66,6 @@ function RtTextNode({ node }: { node: RtText }) {
   if (node.marks?.includes("bold"))          out = <strong class="rt-b">{out}</strong>
   if (node.color)                            out = <span class={`rt-color-${node.color}`}>{out}</span>
   if (node.style)                            out = <span class={`rt-type-${node.style}`}>{out}</span>
+  if (node.font)                             out = <span class={`rt-font-${node.font}`}>{out}</span>
   return <>{out}</>
 }

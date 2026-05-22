@@ -20,6 +20,10 @@
 .rt-u          { text-decoration: underline; }
 .rt-s          { text-decoration: line-through; }
 .rt-code       { font-family: ui-monospace, monospace; padding: 0 0.25em; border-radius: var(--radius-sm, 0.125rem); background: rgb(0 0 0 / 0.05); }
+.rt-font-title   { font-family: var(--font-title); }
+.rt-font-heading { font-family: var(--font-heading); }
+.rt-font-text    { font-family: var(--font-text); }
+.rt-font-script  { font-family: var(--font-script); }
 
-/* rt-type-<style> / rt-color-<id> / rt-themed-<id> are tenant-owned. */
+/* rt-type-<style> / rt-color-<id> / custom rt-font-<id> / rt-themed-<id> are tenant-owned. */
 /* Themes layer their own decoration via tenant-theme.css. */

@@ -26,6 +26,11 @@
   ],
   "typeStyles": [],
   "colorTokens": [],
+  "fontFamilies": [
+    { "id": "title", "label": "Title font", "cssVar": "--font-title" },
+    { "id": "heading", "label": "Heading font", "cssVar": "--font-heading" },
+    { "id": "text", "label": "Text font", "cssVar": "--font-text" }
+  ],
   "themedNodes": [],
   "cssEntry": "cms-editor.css",
   "defaultMode": "canvas"

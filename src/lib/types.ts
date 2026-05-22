@@ -106,6 +106,7 @@ export interface RtText {
   marks?: RtMark[]
   style?: string
   color?: string
+  font?: string
 }
 
 export interface RtLink {
