@@ -8,9 +8,10 @@
   "packageManager": "pnpm@10.33.4",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-cms-css.mjs",
     "preview": "astro preview",
     "astro": "astro",
+    "dev:cms-css": "node scripts/watch-cms-css.mjs",
     "test": "vitest run"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@tailwindcss/cli": "^4.2.4",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
     "tailwindcss": "^4.2.4",

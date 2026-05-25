@@ -211,6 +211,7 @@ function PreactBlock({
         eyebrow={block.eyebrow}
         headline={block.headline}
         subheadline={block.subheadline}
+        anchor={block.anchor}
         cta={block.cta}
         imageUrl={resolveMedia(block.image as MediaRef)}
         dataBlockIndex={dataBlockIndex}
@@ -218,13 +219,14 @@ function PreactBlock({
     )
   }
   if (block.blockType === "richText") {
-    return <RichText body={block.body} dataBlockIndex={dataBlockIndex} />
+    return <RichText body={block.body} anchor={block.anchor} dataBlockIndex={dataBlockIndex} />
   }
   if (block.blockType === "cta") {
     return (
       <CTA
         headline={block.headline}
         description={block.description}
+        anchor={block.anchor}
         primary={block.primary}
         secondary={block.secondary}
         dataBlockIndex={dataBlockIndex}
@@ -236,6 +238,7 @@ function PreactBlock({
       <FeatureList
         title={block.title}
         intro={block.intro}
+        anchor={block.anchor}
         features={block.features}
         dataBlockIndex={dataBlockIndex}
       />
@@ -252,13 +255,14 @@ function PreactBlock({
       <Testimonials
         title={block.title}
         items={items}
+        anchor={block.anchor}
         dataBlockIndex={dataBlockIndex}
       />
     )
   }
   if (block.blockType === "faq") {
     return (
-      <FAQ title={block.title} items={block.items} dataBlockIndex={dataBlockIndex} />
+      <FAQ title={block.title} items={block.items} anchor={block.anchor} dataBlockIndex={dataBlockIndex} />
     )
   }
   if (block.blockType === "contactSection") {
@@ -266,6 +270,7 @@ function PreactBlock({
       <ContactSection
         title={block.title}
         description={block.description}
+        anchor={block.anchor}
         formName={block.formName}
         submitLabel={block.submitLabel}
         fields={block.fields}

@@ -1,4 +1,6 @@
 ---
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import '../styles/global.css';
 import Seo from '../components/seo/Seo.astro';
 import JsonLdOrganization from '../components/seo/JsonLdOrganization.astro';
@@ -13,6 +15,15 @@ interface Props {
 }
 
 const { title, description, ogImage, noindex } = Astro.props;
+const cmsDataDir = process.env.CMS_DATA_DIR;
+let tenantTheme = "";
+if (cmsDataDir) {
+  try {
+    tenantTheme = await fs.readFile(path.resolve(cmsDataDir, "tenant-theme.css"), "utf-8");
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== "ENOENT") console.error("[tenant-theme]", e);
+  }
+}
 ---
 
 <!doctype html>
@@ -27,6 +38,7 @@ const { title, description, ogImage, noindex } = Astro.props;
     <Seo title={title} description={description} ogImage={ogImage} noindex={noindex} />
     <JsonLdOrganization />
     <JsonLdLocalBusiness />
+    {tenantTheme && <style data-tenant-theme set:html={tenantTheme} />}
   </head>
   <body class="bg-white text-slate-900 antialiased">
     <slot />
