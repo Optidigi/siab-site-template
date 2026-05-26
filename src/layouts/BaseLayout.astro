@@ -15,6 +15,7 @@ interface Props {
 }
 
 const { title, description, ogImage, noindex } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim();
 type MaintenanceBannerModule = {
   default: (props: { message: string }) => unknown;
 };
@@ -52,6 +53,7 @@ if (cmsDataDir) {
     <JsonLdOrganization />
     <JsonLdLocalBusiness />
     {tenantTheme && <style data-tenant-theme set:html={tenantTheme} />}
+    {turnstileSiteKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
   </head>
   <body class="bg-white text-slate-900 antialiased [container-name:site-frame] [container-type:inline-size] [contain:layout]">
     <div class="site-frame-root">
