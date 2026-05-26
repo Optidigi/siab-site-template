@@ -13,7 +13,7 @@ RUN corepack enable && pnpm install --frozen-lockfile
 COPY . .
 ARG SITE_URL=https://example.com
 ENV SITE_URL=${SITE_URL}
-RUN pnpm build
+RUN pnpm check:responsive && pnpm build
 
 FROM nginx:${NGINX_VERSION}
 RUN rm -f /etc/nginx/conf.d/default.conf

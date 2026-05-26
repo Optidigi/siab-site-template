@@ -12,6 +12,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "dev:cms-css": "node scripts/watch-cms-css.mjs",
+    "check:responsive": "node scripts/check-responsive.mjs --mode=site",
     "test": "vitest run"
   },
   "dependencies": {

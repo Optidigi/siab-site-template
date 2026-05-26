@@ -53,8 +53,10 @@ if (cmsDataDir) {
     <JsonLdLocalBusiness />
     {tenantTheme && <style data-tenant-theme set:html={tenantTheme} />}
   </head>
-  <body class="bg-white text-slate-900 antialiased">
-    {MaintenanceBanner && <MaintenanceBanner message={maintenanceMessage} />}
-    <slot />
+  <body class="bg-white text-slate-900 antialiased [container-name:site-frame] [container-type:inline-size] [contain:layout]">
+    <div class="site-frame-root">
+      {MaintenanceBanner && <MaintenanceBanner message={maintenanceMessage} />}
+      <slot />
+    </div>
   </body>
 </html>
