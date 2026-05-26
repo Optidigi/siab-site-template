@@ -29,8 +29,7 @@ pnpm astro check  # type / schema check
 ## Environment variables
 
 See `.env.example`. `SITE_URL` is the only one the build needs;
-`PUBLIC_WEB3FORMS_KEY`, `PUBLIC_CONTACT_EMAIL`, and
-`PUBLIC_TURNSTILE_SITE_KEY` are optional.
+`PUBLIC_WEB3FORMS_KEY` and `PUBLIC_CONTACT_EMAIL` are optional.
 
 ## Don't edit this template directly during a site engagement
 

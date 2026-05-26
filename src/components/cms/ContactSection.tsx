@@ -25,14 +25,12 @@ export type ContactSectionProps = {
   description?: RtRoot | null
   formName: string
   submitLabel?: string | null
-  turnstileSiteKey?: string | null
   fields: ContactSectionField[]
   dataBlockIndex?: number
 }
 
 export default function ContactSection(props: ContactSectionProps) {
   const { anchor, title, description, formName, submitLabel, fields, dataBlockIndex } = props
-  const turnstileSiteKey = props.turnstileSiteKey ?? import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? null
   return (
     <BlockErrorBoundary blockType="contactSection">
       <section
@@ -54,10 +52,9 @@ export default function ContactSection(props: ContactSectionProps) {
           class="cms-block__form"
           name={formName}
           method="POST"
-          action="/api/forms"
           style={{ borderRadius: "var(--radius-md)" }}
         >
-          <input type="hidden" name="formName" value={formName} />
+          <input type="hidden" name="form-name" value={formName} />
           {fields.map((f) => (
             <div key={f.name} class="cms-block__form-field">
               <label class="cms-block__form-label" htmlFor={`field-${f.name}`}>
@@ -83,9 +80,6 @@ export default function ContactSection(props: ContactSectionProps) {
               )}
             </div>
           ))}
-          {turnstileSiteKey && (
-            <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
-          )}
           <button
             type="submit"
             class="cms-block__form-submit"
