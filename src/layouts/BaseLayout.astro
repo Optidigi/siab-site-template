@@ -15,6 +15,19 @@ interface Props {
 }
 
 const { title, description, ogImage, noindex } = Astro.props;
+type MaintenanceBannerModule = {
+  default: (props: { message: string }) => unknown;
+};
+const maintenanceBannerModules = import.meta.glob<MaintenanceBannerModule>(
+  '../components/MaintenanceBanner.astro',
+);
+const loadMaintenanceBanner = maintenanceBannerModules['../components/MaintenanceBanner.astro'];
+const maintenanceMessage =
+  site.maintenance?.message?.trim() || 'Deze website is tijdelijk in onderhoud.';
+const MaintenanceBanner =
+  site.maintenance?.enabled && loadMaintenanceBanner
+    ? (await loadMaintenanceBanner()).default
+    : null;
 const cmsDataDir = process.env.CMS_DATA_DIR;
 let tenantTheme = "";
 if (cmsDataDir) {
@@ -41,6 +54,7 @@ if (cmsDataDir) {
     {tenantTheme && <style data-tenant-theme set:html={tenantTheme} />}
   </head>
   <body class="bg-white text-slate-900 antialiased">
+    {MaintenanceBanner && <MaintenanceBanner message={maintenanceMessage} />}
     <slot />
   </body>
 </html>

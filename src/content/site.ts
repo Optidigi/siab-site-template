@@ -24,6 +24,10 @@ export type SiteConfig = {
   nap?: NAP;
   hours?: OpeningHours[];
   serviceArea?: string[];   // ['Amsterdam', 'Utrecht']
+  maintenance?: {
+    enabled?: boolean;
+    message?: string;
+  };
   socials: {
     facebook?: string;
     instagram?: string;
