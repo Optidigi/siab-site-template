@@ -9,6 +9,19 @@ export type MediaRef =
   | { id: number | string; url?: string | null; filename?: string | null; alt?: string | null }
   | null
 
+export type FooterCompositionLink = { label?: string | null; href?: string | null }
+export type FooterCompositionItem = {
+  id?: string | null
+  type?: "brand" | "text" | "links" | "contact" | "business" | "navigation" | null
+  label?: string | null
+  text?: string | null
+  links?: FooterCompositionLink[] | null
+}
+export type FooterCompositionColumn = {
+  id?: string | null
+  items?: FooterCompositionItem[] | null
+}
+
 export type HeroBlock = {
   blockType: "hero"
   anchor?: string | null
