@@ -40,6 +40,7 @@
       { "type": "navigation", "label": "Navigation" },
       { "type": "links", "label": "Links" },
       { "type": "contact", "label": "Contact" },
+      { "type": "business", "label": "Business details" },
       { "type": "text", "label": "Text" }
     ]
   },
